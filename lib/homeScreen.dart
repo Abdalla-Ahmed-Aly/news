@@ -40,7 +40,7 @@ class _HomescreenState extends State<Homescreen> {
   }
 
   void resetSelectedCaegory() {
-    if (selectedCategory==null) return;
+    if (selectedCategory == null) return;
     selectedCategory = null;
     setState(() {});
   }

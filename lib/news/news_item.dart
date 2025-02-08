@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:news/app_them.dart';
+import 'package:news/models/news_response/article.dart';
 
 class NewsItem extends StatelessWidget {
-  const NewsItem({super.key});
-
+  NewsItem({required this.news});
+  Article news;
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -16,18 +18,26 @@ class NewsItem extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              'assets/images/news.png',
+            child: Image.network(
+              news.urlToImage ?? 'https://i.sstatic.net/y9DpT.jpg',
               height: MediaQuery.sizeOf(context).height * 0.2,
               width: double.infinity,
               fit: BoxFit.fill,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/images/default_news.jpg', 
+                  height: MediaQuery.sizeOf(context).height * 0.2,
+                  width: double.infinity,
+                  fit: BoxFit.fill,
+                );
+              },
             ),
           ),
           SizedBox(
             height: 10,
           ),
           Text(
-            '40-year-old man falls 200 feet to his death while canyoneering at national park',
+            news.title ?? '',
             style: textTheme.titleMedium,
           ),
           SizedBox(
@@ -37,13 +47,12 @@ class NewsItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'By : Jon Haworth',
+                'By : ${news.source!.name ?? ''}',
                 style: textTheme.labelMedium,
               ),
               Text(
-                '15 minutes ago',
-                                style: textTheme.labelMedium,
-
+                timeago.format(news.publishedAt ?? DateTime.now()),
+                style: textTheme.labelMedium,
               ),
             ],
           )
