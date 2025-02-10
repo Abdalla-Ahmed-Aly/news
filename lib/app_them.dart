@@ -18,6 +18,30 @@ class AppThem {
       centerTitle: true,
     ),
     scaffoldBackgroundColor: black,
+    inputDecorationTheme: InputDecorationTheme(
+      hintStyle: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: white,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+
+          width: 1,
+          color: white,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          width: 1,
+          color: white,
+
+        ),
+        borderRadius: BorderRadius.circular(16),
+
+      ),
+    ),
     textTheme: TextTheme(
         titleLarge: TextStyle(
           fontSize: 24,

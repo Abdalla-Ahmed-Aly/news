@@ -11,7 +11,9 @@ import 'package:news/widget/loading_indicator.dart';
 
 class NewsView extends StatefulWidget {
   static const String routName = '/news';
-  NewsView({required this.categoryId});
+    String searchQuery = ''; 
+
+  NewsView({required this.categoryId,required this.searchQuery});
   String categoryId;
   @override
   State<NewsView> createState() => _NewsViewState();
@@ -67,25 +69,34 @@ class _NewsViewState extends State<NewsView> {
                       } else if (snapshot.hasError ||
                           snapshot.data?.status != 'ok') {
                         return ErrorIndicator();
-                      } else {
-                        List<Article> newsList = snapshot.data?.articles ?? [];
-                        return ListView.separated(
-                          padding:
-                              EdgeInsets.only(top: 16, right: 16, left: 16),
-                          itemBuilder: (_, index) =>
-                              NewsItem(news: newsList[index]),
-                          itemCount: newsList.length,
-                          separatorBuilder: (_, __) => SizedBox(
-                            height: 24,
-                          ),
-                        );
-                      }
-                    },
-                  ),
+                      }  else {
+                      List<Article> newsList = snapshot.data?.articles ??[];
+
+                      List<Article> filteredNews = newsList.where((article) {
+                        return article.title!.toLowerCase().contains(widget.searchQuery);
+                      }).toList();
+
+                      return filteredNews.isEmpty
+                          ? Center(
+                              child: Text(
+                                "No news found!",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )
+                          : ListView.separated(
+                              padding: EdgeInsets.all(16),
+                              itemBuilder: (_, index) => NewsItem(news: filteredNews[index]),
+                              itemCount: filteredNews.length,
+                              separatorBuilder: (_, __) => SizedBox(height: 24),
+                            );
+                    }
+                  },
                 ),
-              ],
-            );
-          }
-        });
+              ),
+            ],
+          );
+        }
+      },
+    );
   }
 }

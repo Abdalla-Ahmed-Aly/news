@@ -33,4 +33,17 @@ class ApiService {
     Map<String, dynamic> json = jsonDecode(response.body);
     return NewsResponse.fromJson(json);
   }
+//  static Future<NewsResponse> SearchNews(String Search) async {
+//     Uri uri = Uri.https(
+//       ApiCons.baseURL,
+//       ApiCons.SerchEndBoint,
+//       {
+//         'apiKey': ApiCons.apiKey,
+//         'q': Search,
+//       },
+//     );
+//     http.Response response = await http.get(uri);
+//     Map<String, dynamic> json = jsonDecode(response.body);
+//     return NewsResponse.fromJson(json);
+//   }
 }
