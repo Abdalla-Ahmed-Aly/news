@@ -62,7 +62,7 @@ class _NewsViewState extends State<NewsView> {
                 ),
                 Expanded(
                   child: FutureBuilder(
-                    future: ApiService.getNews(sources[currenIndex].id!),
+                    future: ApiService.getNews(sources[currenIndex].id!,widget.searchQuery),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return LoadingIndicator();
@@ -72,11 +72,9 @@ class _NewsViewState extends State<NewsView> {
                       }  else {
                       List<Article> newsList = snapshot.data?.articles ??[];
 
-                      List<Article> filteredNews = newsList.where((article) {
-                        return article.title!.toLowerCase().contains(widget.searchQuery);
-                      }).toList();
+                    
 
-                      return filteredNews.isEmpty
+                      return newsList.isEmpty
                           ? Center(
                               child: Text(
                                 "No news found!",
@@ -85,8 +83,8 @@ class _NewsViewState extends State<NewsView> {
                             )
                           : ListView.separated(
                               padding: EdgeInsets.all(16),
-                              itemBuilder: (_, index) => NewsItem(news: filteredNews[index]),
-                              itemCount: filteredNews.length,
+                              itemBuilder: (_, index) => NewsItem(news: newsList[index]),
+                              itemCount: newsList.length,
                               separatorBuilder: (_, __) => SizedBox(height: 24),
                             );
                     }
