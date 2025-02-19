@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:news/Api/api_service.dart';
 import 'package:news/app_them.dart';
-import 'package:news/models/news_response/article.dart';
-import 'package:news/models/sourse_response/source.dart';
-import 'package:news/models/sourse_response/sourse_response.dart';
+import 'package:news/news/data/models/News.dart';
 import 'package:news/news/news_item.dart';
-import 'package:news/news/tab_item.dart';
+import 'package:news/news/view_model/news_view_model.dart';
+import 'package:news/sources/view/widget/tab_item.dart';
+import 'package:news/sources/view_model/sources_view_model.dart';
 import 'package:news/widget/error_indicator.dart';
 import 'package:news/widget/loading_indicator.dart';
+import 'package:provider/provider.dart';
+import 'package:news/sources/data/models/source.dart';
 
 class NewsView extends StatefulWidget {
   static const String routName = '/news';
-    String searchQuery = ''; 
+  String searchQuery = '';
 
-  NewsView({required this.categoryId,required this.searchQuery});
+  NewsView({required this.categoryId, required this.searchQuery});
   String categoryId;
   @override
   State<NewsView> createState() => _NewsViewState();
@@ -21,19 +22,30 @@ class NewsView extends StatefulWidget {
 
 class _NewsViewState extends State<NewsView> {
   int currenIndex = 0;
-  late Future<SourseResponse> getSources =
-      ApiService.getSources(widget.categoryId);
+  SourcesViewModel viewModel = SourcesViewModel();
+  NewsViewModel newsViewModel = NewsViewModel();
+  late ScrollController scrollController;
+  @override
+  void initState() {
+    super.initState();
+    scrollController = ScrollController();
+    viewModel.getSorces(widget.categoryId);
+    scrollController.addListener(LoadMoreDate);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getSources,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+    return ChangeNotifierProvider(
+      create: (_) => viewModel,
+      child: Consumer<SourcesViewModel>(
+        builder: (_, value, __) {
+          if (value.isLoading) {
             return LoadingIndicator();
-          } else if (snapshot.hasError || snapshot.data?.status != 'ok') {
-            return ErrorIndicator();
+          } else if (value.errorMessage != null) {
+            return ErrorIndicator('failed');
           } else {
-            List<Source> sources = snapshot.data?.sources ?? [];
+            List<Source> sources = viewModel.sources;
+            newsViewModel.getNews(sources[currenIndex].id!, widget.searchQuery);
             return Column(
               children: [
                 DefaultTabController(
@@ -61,40 +73,39 @@ class _NewsViewState extends State<NewsView> {
                   ),
                 ),
                 Expanded(
-                  child: FutureBuilder(
-                    future: ApiService.getNews(sources[currenIndex].id!,widget.searchQuery),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return LoadingIndicator();
-                      } else if (snapshot.hasError ||
-                          snapshot.data?.status != 'ok') {
-                        return ErrorIndicator();
-                      }  else {
-                      List<Article> newsList = snapshot.data?.articles ??[];
-
-                    
-
-                      return newsList.isEmpty
-                          ? Center(
-                              child: Text(
-                                "No news found!",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            )
-                          : ListView.separated(
-                              padding: EdgeInsets.all(16),
-                              itemBuilder: (_, index) => NewsItem(news: newsList[index]),
-                              itemCount: newsList.length,
-                              separatorBuilder: (_, __) => SizedBox(height: 24),
-                            );
-                    }
-                  },
+                  child: ChangeNotifierProvider(
+                    create: (_) => newsViewModel,
+                    child: Consumer<NewsViewModel>(
+                      builder: (_, ViewModel, __) {
+                        if (ViewModel.isLoading) {
+                          return LoadingIndicator();
+                        } else if (ViewModel.errorMessage != null) {
+                          return ErrorIndicator('no news');
+                        } else {
+                          List<News> newsList = ViewModel.newsList;
+                          return ListView.separated(
+                            padding: EdgeInsets.all(16),
+                            controller: scrollController,
+                            itemBuilder: (_, index) =>
+                                NewsItem(news: newsList[index]),
+                            itemCount: newsList.length,
+                            separatorBuilder: (_, __) => SizedBox(height: 24),
+                          );
+                        }
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          );
-        }
-      },
+              ],
+            );
+          }
+        },
+      ),
     );
+  }
+
+  void LoadMoreDate() {
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {}
   }
 }

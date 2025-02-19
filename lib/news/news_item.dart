@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:news/app_them.dart';
-import 'package:news/models/news_response/article.dart';
+import 'package:news/news/data/models/News.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NewsItem extends StatelessWidget {
   NewsItem({required this.news});
-  Article news;
+  News news;
   Uri? url;
   @override
   Widget build(BuildContext context) {

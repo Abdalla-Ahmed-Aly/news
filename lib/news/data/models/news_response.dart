@@ -1,18 +1,17 @@
-import 'article.dart';
+import 'News.dart';
 
 class NewsResponse {
   String? status;
   int? totalResults;
-  List<Article>? articles;
+  List<News>? NewsList;
 
-  NewsResponse({this.status, this.totalResults, this.articles});
+  NewsResponse({this.status, this.totalResults, this.NewsList});
 
   factory NewsResponse.fromJson(Map<String, dynamic> json) => NewsResponse(
         status: json['status'] as String?,
         totalResults: json['totalResults'] as int?,
-        articles: (json['articles'] as List<dynamic>?)
-            ?.map((e) => Article.fromJson(e as Map<String, dynamic>))
+        NewsList: (json['articles'] as List<dynamic>?)
+            ?.map((e) => News.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
-
 }
